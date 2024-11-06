@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Калькулятор</title>
+    <style>
+         body {
+        background-color: rgb(117, 239, 243);
+           
+        }
+
+        td {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            border: none;
+            margin-left: 20px;
+            margin-right: 20px;
+            padding: 5px;
+        }
+
+        button {
+            width: 100px;
+            height: 100px;
+            margin: 5px;
+        }
+
+        .toggle-button {
+            width: 100px;
+            height: 50px;
+            margin: 5px;
+        }
+        .value-display {
+            width: 10px;
+            height: 10px;
+            text-align: center;
+            border: 1px solid #ccc;
+            margin: 5px;
+        }
+        .right-container {
+            position: absolute;
+            left: 15px;
+            top: 1000px;
+        }
+        #graph-image {
+            position: absolute;
+            top: 200px;
+            right: 200px;
+        }
+
+        h1 {
+            position: absolute;
+            top: 50px;
+            right: 1245px;
+
+            text-align: center;
+            margin-top: 20px;
+            font-size: 24px;
+        }
+
+        t1 {
+            position: absolute;
+            top: 50px;
+            right: 450px;
+
+            text-align: center;
+            margin-top: 20px;
+            font-size: 24px;
+        }
+        e1 {
+            position: absolute;
+            top: 50px;
+            right: 1245px;
+
+            text-align: center;
+            margin-top: 20px;
+            font-size: 24px;
+        }
+        #history-container {
+            position: absolute;
+            top: 100px;
+            right: 1200px;
+
+            margin: 20px auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+            width: 80%;
+            max-width: 150px;
+            background-color: #f9f9f9;
+        }
+
+        .history-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background-color: #fff;
+        }
+
+        .history-item div {
+            margin-bottom: 5px;
+        }
+
+        .errors {
+            position: absolute;
+            left: 15px;
+            top: 800px;
+        }
+
+    </style>
+
+</head>
+<body>
+    <table>
+        <tr>
+            <td colspan="7"><input type="text" style="width: 830px; height: 50px; text-align: right; border: 1px solid #ccc;" id="result" readonly></td>
+        </tr>
+        <tr>
+            <td><button onclick="pushFunction(event)" style="background-color: gray; color: white;">sin</button></td>
+            <td><button onclick="pushFunction(event)" style="background-color: gray; color: white;">asin</button></td>
+            <td><button onclick="pushChangeSign()" style="background-color: gray; color: white;">+/-</button></td>
+            <td><button onclick="pushX()"  style="background-color: gray; color: white; " >X</button></td>
+            <td><button onclick="fetchHistory()"  style="background-color: gray; color: white; ">history</button></td>
+            <td><button onclick="deleteBackNode()" style="background-color: gray; color: white; ">del</button></td>
+            <td><button onclick="pushOperator(event)" style="background-color: orange; color: white;">/</button></td>
+        </tr>
+        <tr>
+            <td><button onclick="pushFunction(event)" style="background-color: gray; color: white;">cos</button></td>
+            <td><button onclick="pushFunction(event)" style="background-color: gray; color: white;">acos</button></td>
+            <td><button onclick="pushOperator(event)" style="background-color: gray; color: white;">%</button></td>
+            <td><button onclick="pushNumber(event)">7</button></td>
+            <td><button onclick="pushNumber(event)">8</button></td>
+            <td><button onclick="pushNumber(event)">9</button></td>
+            <td><button onclick="pushOperator(event)" style="background-color: orange; color: white;">*</button></td>
+        </tr>
+        <tr>
+            <td><button onclick="pushFunction(event)" style="background-color: gray; color: white;">tan</button></td>
+            <td><button onclick="pushFunction(event)" style="background-color: gray; color: white;">atan</button></td>
+            <td><button onclick="pushFunction(event)" style="background-color: gray; color: white;">sqrt</button></td>
+            <td><button onclick="pushNumber(event)">4</button></td>
+            <td><button onclick="pushNumber(event)">5</button></td>
+            <td><button onclick="pushNumber(event)">6</button></td>
+            <td><button onclick="pushOperator(event)" style="background-color: orange; color: white;">-</button></td>
+        </tr>
+        <tr>
+            <td><button onclick="pushOpenBracket()"  style="background-color: gray; color: white; ">(</button></td>
+            <td><button onclick="pushCloseBracket()" style="background-color: gray; color: white;">)</button></td>
+            <td><button onclick="pushOperator(event)" style="background-color: gray; color: white;">^</button></td>
+            <td><button onclick="pushNumber(event)">1</button></td>
+            <td><button onclick="pushNumber(event)">2</button></td>
+            <td><button onclick="pushNumber(event)">3</button></td>
+            <td><button onclick="pushOperator(event)" style="background-color: orange; color: white;">+</button></td>
+        </tr>
+        <tr>
+            <td><button onclick="pushFunction(event)" style="background-color: gray; color: white;">ln</button></td>
+            <td><button onclick="pushFunction(event)" style="background-color: gray; color: white;">log</button></td>
+            <td><button onclick="sendGraphData()"  style="background-color: gray; color: white; ">Graph</button></td>
+            <td><button onclick="pushNumber(event)">0</button></td>
+            <td><button onclick="pushPoint()" style="background-color: gray; color: white; ">.</button></td>
+            <td><button onclick="clearResult()" style="background-color: gray; color: white; ">C</button></td>
+            <td><button onclick="calc(event)" style="background-color: orange; color: white;">=</button></td>
+        </tr>
+    </table>
+
+    <div class="errors">
+        <div>
+            <label style="display: block; text-align: center;">errors</label>
+            <input type="text" style="width: 825px; height: 50px; text-align: center; border: 1px solid #ccc;" id="errors" class="value-display" readonly>
+        </div>
+    </div>
+
+
+    <div class="right-container">
+        <div>
+            <label style="display: block; text-align: center;">xmin</label>
+            <div>
+                <button class="toggle-button" onclick="increaseXMin(1000)">+1000</button>
+                <button class="toggle-button" onclick="increaseXMin(100)">+100</button>
+                <button class="toggle-button" onclick="increaseXMin(10)">+10</button>
+                <button class="toggle-button" onclick="decreaseXMin(-10)">-10</button>
+                <button class="toggle-button" onclick="decreaseXMin(-100)">-100</button>
+                <button class="toggle-button" onclick="decreaseXMin(-1000)">-1000</button>
+                <input type="text" style="width: 50px; height: 50px; text-align: center; border: 1px solid #ccc;" id="xmin" class="value-display" readonly value="0">
+            </div>
+        </div>
+        <div>
+            <label style="display: block; text-align: center;">xmax</label>
+            <div>
+                <button class="toggle-button" onclick="increaseXMax(1000)">+1000</button>
+                <button class="toggle-button" onclick="increaseXMax(100)">+100</button>
+                <button class="toggle-button" onclick="increaseXMax(10)">+10</button>
+                <button class="toggle-button" onclick="decreaseXMax(-10)">-10</button>
+                <button class="toggle-button" onclick="decreaseXMax(-100)">-100</button>
+                <button class="toggle-button" onclick="decreaseXMax(-1000)">-1000</button>
+                <input type="text" style="width: 50px; height: 50px; text-align: center; border: 1px solid #ccc;" id="xmax" class="value-display" readonly value="0">
+            </div>
+        </div>
+    </div>
+
+
+    <div>
+        <t1>Graph</t1>
+        <img id="graph-image" src="" style="margin: 20px auto;">
+    </div>
+
+    <e1>History</e1>
+    <div id="history-container"></div>
+
+    <script>
+        let xminValue = 0;
+        let xmaxValue = 0;
+
+        function increaseXMin(value) {
+            xminValue += value;
+            document.getElementById('xmin').value = xminValue;
+        }
+
+        function decreaseXMin(value) {
+            xminValue -= -value;
+            document.getElementById('xmin').value = xminValue;
+        }
+
+        function increaseXMax(value) {
+            xmaxValue += value;
+            document.getElementById('xmax').value = xmaxValue;
+        }
+
+        function decreaseXMax(value) {
+            xmaxValue -= -value;
+            document.getElementById('xmax').value = xmaxValue;
+        }
+
+        async function deleteBackNode() {
+            try {
+                const response = await fetch('/pushdeletenode', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                document.getElementById('result').value = data.result;
+                document.getElementById('errors').value = data.errors;
+                console.log(data);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function pushNumber(event) {
+            const value = event.target.innerText;
+            try {
+                const response = await fetch('/push', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ value: parseInt(value) })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                document.getElementById('result').value = data.result;
+                document.getElementById('errors').value = data.errors;
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function pushOperator(event) {
+            const value = event.target.innerText;
+            try {
+                const response = await fetch('/pushoperator', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ value: value })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                document.getElementById('result').value = data.result;
+                document.getElementById('errors').value = data.errors;
+                console.log(data);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function pushFunction(event) {
+            const value = event.target.innerText;
+            try {
+                const response = await fetch('/pushfunction', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ value: value })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                document.getElementById('result').value = data.result;
+                document.getElementById('errors').value = data.errors;
+                console.log(data);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function pushPoint() {
+            try {
+                const response = await fetch('/pushpoint', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                document.getElementById('result').value = data.result;
+                document.getElementById('errors').value = data.errors;
+                console.log(data);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function pushOpenBracket() {
+            try {
+                const response = await fetch('/pushopenbracket', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                document.getElementById('result').value = data.result;
+                document.getElementById('errors').value = data.errors;
+                console.log(data);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function pushCloseBracket() {
+            try {
+                const response = await fetch('/pushclosebracket', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                document.getElementById('result').value = data.result;
+                document.getElementById('errors').value = data.errors;
+                console.log(data);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function pushChangeSign() {
+            try {
+                const response = await fetch('/pushsign', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                document.getElementById('result').value = data.result;
+                document.getElementById('errors').value = data.errors;
+                console.log(data);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function pushX() {
+            try {
+                const response = await fetch('/pushx', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                document.getElementById('result').value = data.result;
+                document.getElementById('errors').value = data.errors;
+                console.log(data);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function clearResult() {
+            try {
+                const response = await fetch('/pushclear', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                document.getElementById('result').value = data.result;
+                document.getElementById('errors').value = data.errors;
+                console.log(data);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function calc() {
+            const result = document.getElementById('result').value;
+            try {
+                const response = await fetch('/calc', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ result: result })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                document.getElementById('result').value = data.result;
+                document.getElementById('errors').value = data.errors;
+                console.log(data);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function sendGraphData() {
+            const xmin = document.getElementById('xmin').value;
+            const xmax = document.getElementById('xmax').value;
+            const result = document.getElementById('result').value;
+
+            try {
+                const response = await fetch('/graph', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ xmin: xmin, xmax: xmax, result: result })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                document.getElementById('result').value = "";
+                document.getElementById('graph-image').src = "data:image/png;base64, " +  data.image;
+                document.getElementById('errors').value = data.errors;
+                console.log(data);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function getHistory() {
+            try {
+                const response = await fetch('/history', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log(data);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function fetchHistory() {
+            try {
+                const response = await fetch('/history');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                displayHistory(data.history);
+            } catch (error) {
+                console.error('There has been a problem with your fetch operation:', error);
+            }
+        }
+
+        function displayHistory(history) {
+            const container = document.getElementById('history-container');
+            container.innerHTML = ''; // Clear previous content
+
+            history.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.classList.add('history-item');
+
+                item.forEach(entry => {
+                    const entryDiv = document.createElement('div');
+                    entryDiv.textContent = entry;
+                    itemDiv.appendChild(entryDiv);
+                });
+
+                container.appendChild(itemDiv);
+            });
+        }
+
+        window.onload = fetchHistory;
+
+
+    </script>
+</body>
+</html>
